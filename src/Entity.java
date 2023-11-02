@@ -1,7 +1,7 @@
 
 import javax.swing.ImageIcon;
 
-public class Tank {
+public class Entity {
 	protected ImageIcon image;
 
 	protected Map map;
@@ -20,7 +20,7 @@ public class Tank {
 	protected boolean movingLeft;
 	protected boolean movingRight;
 
-	Tank(int x, int y, int speed, Map map, String imageName) {
+	Entity(int x, int y, int speed, Map map, String imageName) {
 		this.x = x;
 		this.y = y;
 

@@ -1,7 +1,7 @@
 import java.awt.Color;
 import java.awt.Graphics;
 
-public class Bullet extends Tank{
+public class Bullet extends Entity{
 
 	public Bullet(int x, int y, int speed,Map map) {
 		super(x, y, speed, map, "bullet.png");

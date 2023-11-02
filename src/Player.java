@@ -2,10 +2,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
-public class Player extends Tank{
+public class Player extends Entity{
 
-	public Player(int player_OX, int player_OY, int speed, Map map) {
-		super(player_OX, player_OY, speed, map, "player_tank_up.png");
+	public Player(int x, int y, int speed, Map map) {
+		super(x, y, speed, map, "player_tank_up.png");
 		moving();
 	}
 
