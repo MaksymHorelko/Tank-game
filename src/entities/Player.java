@@ -4,45 +4,64 @@ import java.awt.event.KeyEvent;
 
 import map.Map;
 
-public final class Player extends Entity {
+interface PlayerOperations {
+	public static String type = "player_tank";
 
-	private static String type = "player_tank";
+	public void keyPressed(int key);
 
-	public Player(int x, int y, int speed, Map map) {
-		super(x, y, speed, 50, 50, map, type);
+	public void keyReleased(int key);
+}
+
+public final class Player extends Entity implements PlayerOperations {
+
+	public Player(int x, int y, Map map) {
+		super(x, y, 50, 50, map, type);
 	}
 
+	@Override
 	public void keyPressed(int key) {
-		if (key == KeyEvent.VK_W) {
+		switch (key) {
+
+		case KeyEvent.VK_W:
 			movingUp = true;
 			movingDown = false;
 			movingLeft = false;
 			movingRight = false;
 			direction = "up";
-		} else if (key == KeyEvent.VK_S) {
+			break;
+
+		case KeyEvent.VK_S:
 			movingUp = false;
 			movingDown = true;
 			movingLeft = false;
 			movingRight = false;
 			direction = "down";
-		} else if (key == KeyEvent.VK_A) {
+			break;
+
+		case KeyEvent.VK_A:
 			movingUp = false;
 			movingDown = false;
 			movingLeft = true;
 			movingRight = false;
 			direction = "left";
-		} else if (key == KeyEvent.VK_D) {
+			break;
+
+		case KeyEvent.VK_D:
 			movingUp = false;
 			movingDown = false;
 			movingLeft = false;
 			movingRight = true;
 			direction = "right";
-		}
-		if (key == KeyEvent.VK_SPACE && isReadyForShoot) {
-			shooted = true;
+			break;
+
+		case KeyEvent.VK_SPACE:
+			if (isReadyForShoot)
+				shooted = true;
+			break;
 		}
 	}
 
+	@Override
 	public void keyReleased(int key) {
 		if (key == KeyEvent.VK_W) {
 			movingUp = false;

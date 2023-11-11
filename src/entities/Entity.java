@@ -8,7 +8,7 @@ import javax.swing.ImageIcon;
 
 import map.Map;
 
-public abstract class Entity implements getInfoAboutEntity {
+public abstract class Entity implements MovementHandler, CollisionHandler, getInfoAboutEntity, BulletManager {
 	public boolean play = true;
 
 	private String imageName;
@@ -23,6 +23,7 @@ public abstract class Entity implements getInfoAboutEntity {
 	protected int yMax = 550;
 
 	private Bullet bullet;
+	protected long delayForShoot = 750L;
 
 	protected int x;
 	protected int y;
@@ -30,7 +31,7 @@ public abstract class Entity implements getInfoAboutEntity {
 	private int width;
 	private int hight;
 
-	protected int speed;
+	protected int speed = 5;
 
 	protected boolean shooted = false;
 	protected boolean isReadyForShoot = true;
@@ -38,15 +39,13 @@ public abstract class Entity implements getInfoAboutEntity {
 	protected String direction = "up";
 
 	protected boolean isPresed;
-	
-	protected DirectionHandler directionHandler = new DirectionHandler();
-	
+
 	protected boolean movingUp;
 	protected boolean movingDown;
 	protected boolean movingLeft;
 	protected boolean movingRight;
 
-	protected Entity(int x, int y, int speed, int width, int hight, Map map, String imageName) {
+	protected Entity(int x, int y, int width, int hight, Map map, String imageName) {
 		this.x = x;
 		this.y = y;
 
@@ -63,19 +62,61 @@ public abstract class Entity implements getInfoAboutEntity {
 
 		this.map = map;
 
-		this.speed = speed;
-
-		moving();
+		run();
 	}
 
 	@Override
-	public int getOX() {
+	public void moveUp() {
+		y -= speed;
+	}
+
+	@Override
+	public void moveDown() {
+		y += speed;
+	}
+
+	@Override
+	public void moveLeft() {
+		x -= speed;
+	}
+
+	@Override
+	public void moveRight() {
+		x += speed;
+	}
+
+	private void move() {
+		if (movingUp) {
+			if (hasCollisionAbove())
+				moveUp();
+
+		} else if (movingDown) {
+			if (hasCollisionBelow())
+				moveDown();
+
+		} else if (movingLeft) {
+			if (hasCollisionLeft())
+				moveLeft();
+
+		} else if (movingRight) {
+			if (hasCollisionRight())
+				moveRight();
+		}
+	}
+
+	@Override
+	public int getX() {
 		return x;
 	}
 
 	@Override
-	public int getOY() {
+	public int getY() {
 		return y;
+	}
+
+	@Override
+	public int getSpeed() {
+		return speed;
 	}
 
 	@Override
@@ -87,7 +128,7 @@ public abstract class Entity implements getInfoAboutEntity {
 	public int getHight() {
 		return hight;
 	}
-	
+
 	@Override
 	public Bullet getBullet() {
 		return bullet;
@@ -97,14 +138,14 @@ public abstract class Entity implements getInfoAboutEntity {
 	public boolean isShooted() {
 		return shooted;
 	}
-	
+
 	@Override
 	public boolean isReadyForShoot() {
 		return isReadyForShoot;
 	}
 
 	public String getDirection() {
-		return movingUp ? "up" : movingDown ? "down" : movingLeft ? "left" : movingRight ? "right" : "up";
+		return direction;
 	}
 
 	public void draw(Graphics g) {
@@ -120,48 +161,76 @@ public abstract class Entity implements getInfoAboutEntity {
 		image.paintIcon(null, g, x, y);
 	}
 
-	protected boolean hitBlock(int a, int b) {
+	private boolean hitBlock(int a, int b) {
 		return !map.checkCollision(x + a, y + b, width, hight) && !map.checkSolidCollision(x + a, y + b, width, hight);
 	}
 
-	public boolean isOutOfBounds( ) {
-		if (movingUp)
-			return y > yMin && hitBlock(0, -5);
-		else if (movingDown)
-			return y < yMax && hitBlock(0, 5);
-		else if (movingLeft)
-			return x > xMin && hitBlock(-5, 0);
-		else if (movingRight)
-			return x < xMax && hitBlock(5, 0);
+	public boolean hasCollision(String direction) {
+		switch (direction) {
+		case "up":
+			return hasCollisionAbove();
 
-		return true;
+		case "down":
+			return hasCollisionBelow();
+
+		case "left":
+			return hasCollisionLeft();
+
+		case "right":
+			return hasCollisionRight();
+
+		}
+		return false;
 	}
-	
+
+	@Override
+	public boolean hasCollisionAbove() {
+		return y > yMin && hitBlock(0, -speed);
+	}
+
+	@Override
+	public boolean hasCollisionBelow() {
+		return y < yMax && hitBlock(0, speed);
+	}
+
+	@Override
+	public boolean hasCollisionLeft() {
+		return x > xMin && hitBlock(-speed, 0);
+	}
+
+	@Override
+	public boolean hasCollisionRight() {
+		return x < xMax && hitBlock(speed, 0);
+	}
+
+	@Override
 	public void createBullet() {
 		bullet = new Bullet(this);
 		isReadyForShoot = false;
-		delay(2000L);
+		delay(delayForShoot);
 	}
-	
-	public void dellBullet() {
+
+	@Override
+	public void deleteBullet() {
 		bullet.play = false;
+
 		shooted = false;
 		bullet = null;
 	}
-	
+
 	private void delay(long delay) {
 		TimerTask task = new TimerTask() {
-		    public void run() {
-		    	isReadyForShoot = true;
-		    }
+			public void run() {
+				isReadyForShoot = true;
+			}
 		};
 
 		Timer timer = new Timer("Timer");
-		
+
 		timer.schedule(task, delay);
 	}
-	
-	public void moving() {
+
+	public void run() {
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -171,22 +240,7 @@ public abstract class Entity implements getInfoAboutEntity {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					if (movingUp) {
-						if (isOutOfBounds())
-							y -= speed;
-
-					} else if (movingDown) {
-						if (isOutOfBounds())
-							y += speed;
-
-					} else if (movingLeft) {
-						if (isOutOfBounds())
-							x -= speed;
-
-					} else if (movingRight) {
-						if (isOutOfBounds())
-							x += speed;
-					}
+					move();
 				}
 			}
 		});
@@ -194,18 +248,51 @@ public abstract class Entity implements getInfoAboutEntity {
 	}
 }
 
-interface getInfoAboutEntity {
-	public int getOX();
+interface CollisionHandler {
+	public boolean hasCollisionAbove();
 
-	public int getOY();
+	public boolean hasCollisionBelow();
+
+	public boolean hasCollisionLeft();
+
+	public boolean hasCollisionRight();
+
+}
+
+interface MovementHandler {
+	public void moveUp();
+
+	public void moveDown();
+
+	public void moveLeft();
+
+	public void moveRight();
+}
+
+interface BulletManager {
+	public void createBullet();
+
+	public void deleteBullet();
+}
+
+interface ShootingHandler {
+	void shoot();
+}
+
+interface getInfoAboutEntity {
+	public int getX();
+
+	public int getY();
+
+	public int getSpeed();
 
 	public int getWidth();
 
 	public int getHight();
-	
+
 	public Bullet getBullet();
 
 	public boolean isShooted();
-	
+
 	public boolean isReadyForShoot();
 }
