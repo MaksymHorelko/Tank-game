@@ -5,7 +5,6 @@ import java.awt.event.KeyEvent;
 import map.Map;
 
 interface PlayerOperations {
-	public static String type = "player_tank";
 
 	public void keyPressed(int key);
 
@@ -13,7 +12,8 @@ interface PlayerOperations {
 }
 
 public final class Player extends Entity implements PlayerOperations {
-
+	private static String type = "player_tank";
+	
 	public Player(int x, int y, Map map) {
 		super(x, y, 50, 50, map, type);
 	}

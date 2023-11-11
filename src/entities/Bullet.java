@@ -18,8 +18,6 @@ public final class Bullet extends Entity {
 	}
 	
 	private void setSettings(String direction) {
-		yMax += 30;
-		xMax += 30;
 
 		switch (direction) {
 		case "up":

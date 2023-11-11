@@ -8,7 +8,7 @@ import javax.swing.ImageIcon;
 
 import map.Map;
 
-public abstract class Entity implements MovementHandler, CollisionHandler, getInfoAboutEntity, BulletManager {
+public abstract class Entity implements MovementHandler, getInfoAboutEntity, BulletManager {
 	public boolean play = true;
 
 	private String imageName;
@@ -17,13 +17,8 @@ public abstract class Entity implements MovementHandler, CollisionHandler, getIn
 
 	protected Map map;
 
-	protected int xMin = 0;
-	protected int xMax = 600;
-	protected int yMin = 0;
-	protected int yMax = 550;
-
 	private Bullet bullet;
-	protected long delayForShoot = 750L;
+	private long delayForShoot = 750L;
 
 	protected int x;
 	protected int y;
@@ -40,6 +35,10 @@ public abstract class Entity implements MovementHandler, CollisionHandler, getIn
 
 	protected boolean isPresed;
 
+	public CollisionHandler collisionHandler;
+	
+	protected boolean hasCollisionWithOtherObjects = false;
+
 	protected boolean movingUp;
 	protected boolean movingDown;
 	protected boolean movingLeft;
@@ -52,6 +51,7 @@ public abstract class Entity implements MovementHandler, CollisionHandler, getIn
 		this.width = width;
 		this.hight = hight;
 
+		collisionHandler = new CollisionHandler();
 		this.imageName = imageName;
 
 		if (imageName.contains("player")) {
@@ -86,20 +86,21 @@ public abstract class Entity implements MovementHandler, CollisionHandler, getIn
 	}
 
 	private void move() {
+		
 		if (movingUp) {
-			if (hasCollisionAbove())
+			if (collisionHandler.isAbleToMove(this))
 				moveUp();
 
 		} else if (movingDown) {
-			if (hasCollisionBelow())
+			if (collisionHandler.isAbleToMove(this))
 				moveDown();
 
 		} else if (movingLeft) {
-			if (hasCollisionLeft())
+			if (collisionHandler.isAbleToMove(this)) 
 				moveLeft();
 
 		} else if (movingRight) {
-			if (hasCollisionRight())
+			if (collisionHandler.isAbleToMove(this))
 				moveRight();
 		}
 	}
@@ -114,6 +115,11 @@ public abstract class Entity implements MovementHandler, CollisionHandler, getIn
 		return y;
 	}
 
+	@Override
+	public String getType() {
+		return imageName;
+	}
+	
 	@Override
 	public int getSpeed() {
 		return speed;
@@ -132,6 +138,10 @@ public abstract class Entity implements MovementHandler, CollisionHandler, getIn
 	@Override
 	public Bullet getBullet() {
 		return bullet;
+	}
+	
+	public Map getMap() {
+		return map;
 	}
 
 	@Override
@@ -159,48 +169,6 @@ public abstract class Entity implements MovementHandler, CollisionHandler, getIn
 			image = new ImageIcon(imageName + "_" + getDirection() + fileType);
 
 		image.paintIcon(null, g, x, y);
-	}
-
-	private boolean hitBlock(int a, int b) {
-		return !map.checkCollision(x + a, y + b, width, hight) && !map.checkSolidCollision(x + a, y + b, width, hight);
-	}
-
-	public boolean hasCollision(String direction) {
-		switch (direction) {
-		case "up":
-			return hasCollisionAbove();
-
-		case "down":
-			return hasCollisionBelow();
-
-		case "left":
-			return hasCollisionLeft();
-
-		case "right":
-			return hasCollisionRight();
-
-		}
-		return false;
-	}
-
-	@Override
-	public boolean hasCollisionAbove() {
-		return y > yMin && hitBlock(0, -speed);
-	}
-
-	@Override
-	public boolean hasCollisionBelow() {
-		return y < yMax && hitBlock(0, speed);
-	}
-
-	@Override
-	public boolean hasCollisionLeft() {
-		return x > xMin && hitBlock(-speed, 0);
-	}
-
-	@Override
-	public boolean hasCollisionRight() {
-		return x < xMax && hitBlock(speed, 0);
 	}
 
 	@Override
@@ -248,17 +216,6 @@ public abstract class Entity implements MovementHandler, CollisionHandler, getIn
 	}
 }
 
-interface CollisionHandler {
-	public boolean hasCollisionAbove();
-
-	public boolean hasCollisionBelow();
-
-	public boolean hasCollisionLeft();
-
-	public boolean hasCollisionRight();
-
-}
-
 interface MovementHandler {
 	public void moveUp();
 
@@ -269,20 +226,12 @@ interface MovementHandler {
 	public void moveRight();
 }
 
-interface BulletManager {
-	public void createBullet();
-
-	public void deleteBullet();
-}
-
-interface ShootingHandler {
-	void shoot();
-}
-
 interface getInfoAboutEntity {
 	public int getX();
 
 	public int getY();
+	
+	public String getType();
 
 	public int getSpeed();
 
@@ -295,4 +244,14 @@ interface getInfoAboutEntity {
 	public boolean isShooted();
 
 	public boolean isReadyForShoot();
+}
+
+interface BulletManager {
+	public void createBullet();
+
+	public void deleteBullet();
+}
+
+interface ShootingHandler {
+	void shoot();
 }

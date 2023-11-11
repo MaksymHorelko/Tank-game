@@ -19,11 +19,11 @@ public final class Gameplay extends JPanel implements ActionListener, KeyListene
 	private Map map;
 	private Player player;
 
-	private final int maxEnemies = 5;
+	private final int maxEnemies = 2;
 	private ArrayList<Enemy> enemy = new ArrayList<>();
 
 	private int score = 0;
-	protected int lives = 5;
+	protected int lives = 1;
 
 	private Timer timer;
 	private int delay = 1;
@@ -35,7 +35,6 @@ public final class Gameplay extends JPanel implements ActionListener, KeyListene
 		player = new Player(200, 550, map);
 		if (maxEnemies > 0) {
 			createEnemyTank();
-			ii();
 		}
 		setFocusable(true);
 		addKeyListener(this);
@@ -65,34 +64,46 @@ public final class Gameplay extends JPanel implements ActionListener, KeyListene
 			enemy.draw(g);
 		}
 
+		checkCollision();
+
 		// player bullet
 		if (player.isShooted()) {
 			createBullet(player, g);
 		}
 
 		// enemy bullet
-		for (Enemy enemy : enemy) {
-			if (enemy.isShooted()) {
-				createBullet(enemy, g);
+		for (Enemy currentEnemy : enemy) {
+			if (currentEnemy.isShooted()) {
+				createBullet(currentEnemy, g);
 			}
 		}
 
 		info.PrintStats.printStats(score, lives, g);
-		
+
 		// the scores
 
 		if (lives == 0) {
 			g.setColor(Color.white);
-			g.setFont(new Font("serif", Font.BOLD, 60));
+			g.setFont(new Font("roboto", Font.BOLD, 60));
 			g.drawString("Game Over", 200, 300);
 			g.drawString("You Lost!", 220, 380);
 
 			g.setColor(Color.white);
-			g.setFont(new Font("serif", Font.BOLD, 30));
-			g.drawString("(Space to Restart)", 230, 430);
+			g.setFont(new Font("robot", Font.BOLD, 30));
+			g.drawString("(R to Restart)", 250, 430);
 		}
 
 		g.dispose();
+	}
+
+	private void checkCollision() {
+		for (Enemy currentEnemy : enemy) {
+			
+			player.collisionHandler.hasCollisionWithObject(player, currentEnemy);
+			
+			currentEnemy.collisionHandler.hasCollisionWithObject(currentEnemy, player);
+			
+		}
 	}
 
 	private void createBullet(Entity entity, Graphics g) {
@@ -103,26 +114,9 @@ public final class Gameplay extends JPanel implements ActionListener, KeyListene
 
 		entity.getBullet().draw(g);
 
-		if (!entity.getBullet().hasCollision(entity.getBullet().getDirection())) {
+		if (!entity.getBullet().collisionHandler.isAbleToMove(entity.getBullet())) {
 			entity.deleteBullet();
 		}
-	}
-
-	private void ii() {
-		for (Enemy enemy : enemy) {
-			enemy.keyPressed();
-		}
-		int delay = 800;
-		ActionListener listener = new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				for (Enemy enemy : enemy) {
-					enemy.keyPressed();
-				}
-			}
-		};
-		Timer timer = new Timer(delay, listener);
-		timer.start();
 	}
 
 	private void createEnemyTank() {
@@ -144,7 +138,6 @@ public final class Gameplay extends JPanel implements ActionListener, KeyListene
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		timer.start();
 		repaint();
 	}
 

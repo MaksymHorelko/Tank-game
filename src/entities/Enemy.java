@@ -6,7 +6,6 @@ import java.util.Random;
 import map.Map;
 
 interface EnemyOperations {
-	public static String type = "enemy_tank";
 
 	public void chooseDirection();
 
@@ -15,52 +14,69 @@ interface EnemyOperations {
 
 public final class Enemy extends Entity implements EnemyOperations {
 
+	private static String type = "enemy_tank";
+	
 	private ArrayList<String> possibleDirections = new ArrayList<>();
 	private Random random = new Random();
 
 	public Enemy(int x, int y, Map map) {
 		super(x, y, 50, 50, map, type);
+
+		keyPressed();
 	}
-	
-//	@Override
+
 	public void keyPressed() {
-		canMoveInCurrentDirection();
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (play) {
+					try {
+						Thread.sleep(750);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 
-		chooseDirection();
+					canMoveInCurrentDirection();
 
-		switch (direction) {
+					chooseDirection();
 
-		case "up":
-			movingUp = true;
-			movingDown = false;
-			movingLeft = false;
-			movingRight = false;
-			break;
+					switch (direction) {
 
-		case "down":
-			movingUp = false;
-			movingDown = true;
-			movingLeft = false;
-			movingRight = false;
-			break;
+					case "up":
+						movingUp = true;
+						movingDown = false;
+						movingLeft = false;
+						movingRight = false;
+						break;
 
-		case "left":
-			movingUp = false;
-			movingDown = false;
-			movingLeft = true;
-			movingRight = false;
-			break;
+					case "down":
+						movingUp = false;
+						movingDown = true;
+						movingLeft = false;
+						movingRight = false;
+						break;
 
-		case "right":
-			movingUp = false;
-			movingDown = false;
-			movingLeft = false;
-			movingRight = true;
-			break;
-		}
-		
-		if (isReadyForShoot)
-			shooted = true;
+					case "left":
+						movingUp = false;
+						movingDown = false;
+						movingLeft = true;
+						movingRight = false;
+						break;
+
+					case "right":
+						movingUp = false;
+						movingDown = false;
+						movingLeft = false;
+						movingRight = true;
+						break;
+					}
+
+					if (isReadyForShoot)
+						shooted = true;
+				}
+			}
+		});
+		thread.start();
 	}
 
 	@Override
@@ -68,24 +84,26 @@ public final class Enemy extends Entity implements EnemyOperations {
 		int randomDirection = random.nextInt(possibleDirections.size());
 
 		this.direction = possibleDirections.get(randomDirection);
+		
+		possibleDirections.clear();
 	}
 
 	@Override
 	public void canMoveInCurrentDirection() {
 		
-		if (hasCollisionAbove()) {
+		if (!collisionHandler.hasCollision(this, "up")) {
 			possibleDirections.add("up");
 		}
 
-		if (hasCollisionBelow()) {
+		if (!collisionHandler.hasCollision(this, "down")) {
 			possibleDirections.add("down");
 		}
 
-		if (hasCollisionLeft()) {
+		if (!collisionHandler.hasCollision(this, "left")) {
 			possibleDirections.add("left");
 		}
 
-		if (hasCollisionRight()) {
+		if (!collisionHandler.hasCollision(this, "right")) {
 			possibleDirections.add("right");
 		}
 	}
