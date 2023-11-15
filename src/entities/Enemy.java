@@ -15,14 +15,12 @@ interface EnemyOperations {
 public final class Enemy extends Entity implements EnemyOperations {
 
 	private static String type = "enemy_tank";
-	
+
 	private ArrayList<String> possibleDirections = new ArrayList<>();
 	private Random random = new Random();
 
 	public Enemy(int x, int y, Map map) {
 		super(x, y, 50, 50, map, type);
-
-		keyPressed();
 	}
 
 	public void keyPressed() {
@@ -84,26 +82,26 @@ public final class Enemy extends Entity implements EnemyOperations {
 		int randomDirection = random.nextInt(possibleDirections.size());
 
 		this.direction = possibleDirections.get(randomDirection);
-		
+
 		possibleDirections.clear();
 	}
 
 	@Override
 	public void canMoveInCurrentDirection() {
-		
-		if (!collisionHandler.hasCollision(this, "up")) {
+
+		if (!collisionHandler.hasCollisionWithMap(this, "up")) {
 			possibleDirections.add("up");
 		}
 
-		if (!collisionHandler.hasCollision(this, "down")) {
+		if (!collisionHandler.hasCollisionWithMap(this, "down")) {
 			possibleDirections.add("down");
 		}
 
-		if (!collisionHandler.hasCollision(this, "left")) {
+		if (!collisionHandler.hasCollisionWithMap(this, "left")) {
 			possibleDirections.add("left");
 		}
 
-		if (!collisionHandler.hasCollision(this, "right")) {
+		if (!collisionHandler.hasCollisionWithMap(this, "right")) {
 			possibleDirections.add("right");
 		}
 	}

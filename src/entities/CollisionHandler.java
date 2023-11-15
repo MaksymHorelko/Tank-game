@@ -4,68 +4,65 @@ import java.awt.Rectangle;
 
 import map.Map;
 
-interface collisionWithOtherObjects {
-	
-}
-
-interface collisionsWithWalls {
-	
-}
-
 public class CollisionHandler {
 	private int x;
 	private int y;
-	
+
 	private Map map;
-	
+
 	private int xMin = 0;
 	private int xMax = 600;
 	private int yMin = 0;
 	private int yMax = 550;
-	
-	private boolean h1;
-	private boolean h2;
-	private boolean h3;
-	private boolean h4;
-	
+
+	private boolean hasCollisionPlayerWithEnemyAbove;
+	private boolean hasCollisionPlayerWithEnemyBelow;
+	private boolean hasCollisionPlayerWithEnemyLeft;
+	private boolean hasCollisionPlayerWithEnemyRight;
+
+	private boolean hasCollisionEnemyWithEnemyAbove;
+	private boolean hasCollisionEnemyWithEnemyBelow;
+	private boolean hasCollisionEnemyWithEnemyLeft;
+	private boolean hasCollisionEnemyWithEnemyRight;
+
 	private int speed;
-	
+
 	private int width;
 	private int hight;
-	
+
 	public void setSettings(Entity entity) {
 		if (entity instanceof Bullet && map == null) {
 			yMax += 30;
 			xMax += 30;
 		}
-		
+
 		this.speed = entity.getSpeed();
-		
+
 		this.x = entity.getX();
 		this.y = entity.getY();
-		
+
 		this.width = entity.getWidth();
 		this.hight = entity.getHight();
-		
+
 		this.map = entity.getMap();
 	}
-	
+
 	public boolean isAbleToMove(Entity entity) {
-		
+
 		setSettings(entity);
-		
+
 		switch (entity.getDirection()) {
 
 		case "up":
-			return !hasCollisionAbove() && !h1;
+			return !hasCollisionAbove() && !hasCollisionPlayerWithEnemyAbove && !hasCollisionEnemyWithEnemyAbove;
 		case "down":
-			return !hasCollisionBelow() && !h2;
+			return !hasCollisionBelow() && !hasCollisionPlayerWithEnemyBelow && !hasCollisionEnemyWithEnemyBelow;
 
 		case "left":
-			return !hasCollisionLeft() && !h3;
+			return !hasCollisionLeft() && !hasCollisionPlayerWithEnemyLeft && !hasCollisionEnemyWithEnemyLeft;
 
 		case "right":
-			return !hasCollisionRight() && !h4;
+			return !hasCollisionRight() && !hasCollisionPlayerWithEnemyRight && !hasCollisionEnemyWithEnemyRight;
 		}
 
 		return false;
@@ -98,30 +95,52 @@ public class CollisionHandler {
 
 	public boolean hasCollisionWithObject(Entity firstEntity, Entity entity) {
 		String direction = firstEntity.getDirection();
-		
+
 		setSettings(firstEntity);
-		
+
 		switch (direction) {
 		case "up":
-			return h1 = hasCollisionWithObjectAbove(entity);
+			return hasCollisionPlayerWithEnemyAbove = hasCollisionWithObjectAbove(entity);
 
 		case "down":
-			return h2 = hasCollisionWithObjectBelow(entity);
+			return hasCollisionPlayerWithEnemyBelow = hasCollisionWithObjectBelow(entity);
 
 		case "left":
-			return h3 = hasCollisionWithObjectLeft(entity);
+			return hasCollisionPlayerWithEnemyLeft = hasCollisionWithObjectLeft(entity);
 
 		case "right":
-			return h4 = hasCollisionWithObjectRight(entity);
+			return hasCollisionPlayerWithEnemyRight = hasCollisionWithObjectRight(entity);
 
 		}
 		return false;
 	}
 
-	public boolean hasCollision(Entity entity, String direction) {
-		
+	public boolean hasCollisionEnemyWithEnemy(Enemy enemy1, Enemy enemy2) {
+		String direction = enemy1.getDirection();
+
+		setSettings(enemy1);
+
+		switch (direction) {
+		case "up":
+			return hasCollisionEnemyWithEnemyAbove = hasCollisionWithObjectAbove(enemy2);
+
+		case "down":
+			return hasCollisionEnemyWithEnemyBelow = hasCollisionWithObjectBelow(enemy2);
+
+		case "left":
+			return hasCollisionEnemyWithEnemyLeft = hasCollisionWithObjectLeft(enemy2);
+
+		case "right":
+			return hasCollisionEnemyWithEnemyRight = hasCollisionWithObjectRight(enemy2);
+
+		}
+		return false;
+	}
+
+	public boolean hasCollisionWithMap(Entity entity, String direction) {
+
 		setSettings(entity);
-		
+
 		switch (direction) {
 		case "up":
 			return hasCollisionAbove();

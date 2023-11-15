@@ -13,7 +13,7 @@ interface PlayerOperations {
 
 public final class Player extends Entity implements PlayerOperations {
 	private static String type = "player_tank";
-	
+
 	public Player(int x, int y, Map map) {
 		super(x, y, 50, 50, map, type);
 	}
@@ -21,7 +21,6 @@ public final class Player extends Entity implements PlayerOperations {
 	@Override
 	public void keyPressed(int key) {
 		switch (key) {
-
 		case KeyEvent.VK_W:
 			movingUp = true;
 			movingDown = false;

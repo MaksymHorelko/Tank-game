@@ -36,7 +36,7 @@ public abstract class Entity implements MovementHandler, getInfoAboutEntity, Bul
 	protected boolean isPresed;
 
 	public CollisionHandler collisionHandler;
-	
+
 	protected boolean hasCollisionWithOtherObjects = false;
 
 	protected boolean movingUp;
@@ -61,8 +61,6 @@ public abstract class Entity implements MovementHandler, getInfoAboutEntity, Bul
 		}
 
 		this.map = map;
-
-		run();
 	}
 
 	@Override
@@ -86,7 +84,7 @@ public abstract class Entity implements MovementHandler, getInfoAboutEntity, Bul
 	}
 
 	private void move() {
-		
+
 		if (movingUp) {
 			if (collisionHandler.isAbleToMove(this))
 				moveUp();
@@ -96,7 +94,7 @@ public abstract class Entity implements MovementHandler, getInfoAboutEntity, Bul
 				moveDown();
 
 		} else if (movingLeft) {
-			if (collisionHandler.isAbleToMove(this)) 
+			if (collisionHandler.isAbleToMove(this))
 				moveLeft();
 
 		} else if (movingRight) {
@@ -119,7 +117,7 @@ public abstract class Entity implements MovementHandler, getInfoAboutEntity, Bul
 	public String getType() {
 		return imageName;
 	}
-	
+
 	@Override
 	public int getSpeed() {
 		return speed;
@@ -139,7 +137,7 @@ public abstract class Entity implements MovementHandler, getInfoAboutEntity, Bul
 	public Bullet getBullet() {
 		return bullet;
 	}
-	
+
 	public Map getMap() {
 		return map;
 	}
@@ -230,7 +228,7 @@ interface getInfoAboutEntity {
 	public int getX();
 
 	public int getY();
-	
+
 	public String getType();
 
 	public int getSpeed();
